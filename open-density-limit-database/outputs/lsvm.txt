@@ -1,0 +1,4 @@
+Training on 6 features
+Area Under the Curve (AUC): 0.983
+Decision Boundary Form (in scaled space):
+(+0.674 * density) + (-0.866 * plasma_current) + (-0.070 * elongation) + (-0.100 * minor_radius) + (+0.401 * toroidal_B_field) + (-0.033 * triangularity) -2.402 = 0
