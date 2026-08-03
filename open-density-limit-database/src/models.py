@@ -74,3 +74,15 @@ def residual_tcn_block(x, filters, kernel_size, dialation_rate, dropout):
 
     return layers.Add()([x, residual])
 
+
+def build_tcn():
+    pass
+
+
+def build_gru():
+    pass
+
+
+def build_model(name, window_size, feature_number):
+    if name == "cnn":
+        return build_ccn(window_size, feature_number)
