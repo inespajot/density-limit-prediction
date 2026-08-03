@@ -57,8 +57,15 @@ def scale_features(train_df, val_df, test_df):
     return train_df, val_df, test_df, scaler
 
 
-def make_windows(df, window_size, forecast_horizon):
-    """Convert each plasma discharge time series into sliding windows for forecasting."""
+def make_windows(df, window_size, forecast_horizon, window_stride):
+    """Convert discharges into forecasting windows.
+
+    Returns:
+        X: Array shaped (n_windows, window_size, n_features).
+        y: Binary targets shaped (n_windows).
+        discharge_ids:  Discharge ID for each window.
+        end_times: Time of the final input sample.
+    """
 
     X_windows = []
     y_windows = []
@@ -74,7 +81,7 @@ def make_windows(df, window_size, forecast_horizon):
 
         final_end = len(shot) - forecast_horizon
 
-        for end in range(window_size, final_end + 1):
+        for end in range(window_size, final_end + 1, window_stride):
             start = end - window_size
             input_window = signals[start:end]
             input_labels = labels[start:end]
