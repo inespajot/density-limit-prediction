@@ -8,7 +8,7 @@ import pandas as pd
 from tensorflow import keras
 
 from src.preprocessing import features, split_by_discharge, scale_features, make_windows
-from src.models import build_model
+from src.models import build_model, compile_model
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 DATA_PATH = PROJECT_ROOT / "DL_DataFrame.csv"
@@ -28,13 +28,19 @@ training_configs = {
         "epochs": 150,
         "batch_size": 64,
         "patience": 15,
+        "learning_rate": 1e-3,
+        "classification_threshold": 0.5,
     },
     "tcn": {
         "epochs": 200,
         "batch_size": 64,
         "patience": 20,
+        "learning_rate": 1e-3,
+        "classification_threshold": 0.5,
     },
     "gru": {"epochs": 200, "batch_size": 32, "patience": 20},
+    "learning_rate": 1e-3,
+    "classification_threshold": 0.5,
 }
 config = training_configs[model_name]
 
@@ -93,6 +99,12 @@ def train(experiment_dir, config):
 
     model = build_model(
         name=model_name, window_size=window_size, feature_number=len(features)
+    )
+
+    model = compile_model(
+        model,
+        learning_rate=config["learning_rate"],
+        classification_treshold=config["classification_threshold"],
     )
 
     model.summary()
