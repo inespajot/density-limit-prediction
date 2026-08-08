@@ -31,6 +31,7 @@ training_configs = {
         "patience": 15,
         "learning_rate": 1e-3,
         "classification_threshold": 0.5,
+        "minimum_recall": 0.95,
     },
     "tcn": {
         "epochs": 200,
@@ -38,6 +39,7 @@ training_configs = {
         "patience": 20,
         "learning_rate": 1e-3,
         "classification_threshold": 0.5,
+        "minimum_recall": 0.95,
     },
     "gru": {
         "epochs": 200,
@@ -45,6 +47,7 @@ training_configs = {
         "patience": 20,
         "learning_rate": 1e-3,
         "classification_threshold": 0.5,
+        "minimum_recall": 0.95,
     },
 }
 
@@ -158,8 +161,7 @@ def train(experiment_dir, config):
 
     val_probabilities = model.predict(X_val).ravel()
     threshold_selection = select_threshold(
-        y_val,
-        val_probabilities,
+        y_val, val_probabilities, minimum_recall=config["minimum_recall"]
     )
 
     selected_threshold = threshold_selection["threshold"]
@@ -169,9 +171,9 @@ def train(experiment_dir, config):
         threshold_selection,
     )
 
-    metrics = model.evaluate(X_test, y_test, return_dict=True)
+    keras_metrics = model.evaluate(X_test, y_test, return_dict=True)
 
-    metrics = {name: float(value) for name, value in metrics.items()}
+    keras_metrics = {name: float(value) for name, value in metrics.items()}
 
     test_probabilities = model.predict(X_test).ravel()
 

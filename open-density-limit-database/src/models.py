@@ -48,7 +48,7 @@ def residual_tcn_block(x, filters, kernel_size, dilation_rate, dropout):
         filters=filters,
         kernel_size=kernel_size,
         padding="causal",
-        dialation_rate=dialation_rate,
+        dilation_rate=dilation_rate,
     )(x)
 
     x = layers.BatchNormalization()(x)
@@ -77,7 +77,7 @@ def compile_model(model, learning_rate, classification_threshold):
         loss="binary_crossentropy",
         metrics=[
             keras.metrics.AUC(name="roc_auc"),
-            keras.metrcs.AUC(name="pr_auc", curve="PR"),
+            keras.metrics.AUC(name="pr_auc", curve="PR"),
             keras.metrics.Precision(
                 name="precision", thresholds=classification_threshold
             ),
