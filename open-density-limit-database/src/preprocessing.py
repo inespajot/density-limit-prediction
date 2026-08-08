@@ -94,7 +94,7 @@ def make_windows(df, window_size, forecast_horizon, window_stride):
             X_windows.append(input_window)
             y_windows.append(target)
             discharge_ids.append(discharge_id)
-            end_times.append([times[end - 1]])
+            end_times.append(times[end - 1])
 
     return (
         np.asarray(X_windows),

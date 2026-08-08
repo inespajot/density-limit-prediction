@@ -9,6 +9,7 @@ from tensorflow import keras
 
 from src.preprocessing import features, split_by_discharge, scale_features, make_windows
 from src.models import build_model, compile_model
+from src.evaluate import select_threshold, evaluate_at_threshold
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 DATA_PATH = PROJECT_ROOT / "DL_DataFrame.csv"
@@ -38,11 +39,14 @@ training_configs = {
         "learning_rate": 1e-3,
         "classification_threshold": 0.5,
     },
-    "gru": {"epochs": 200, "batch_size": 32, "patience": 20},
-    "learning_rate": 1e-3,
-    "classification_threshold": 0.5,
+    "gru": {
+        "epochs": 200,
+        "batch_size": 32,
+        "patience": 20,
+        "learning_rate": 1e-3,
+        "classification_threshold": 0.5,
+    },
 }
-config = training_configs[model_name]
 
 
 def train(experiment_dir, config):
@@ -94,8 +98,14 @@ def train(experiment_dir, config):
     if len(X_test) == 0:
         raise ValueError("No test windows were generated.")
 
-    if y_train.sum() == 0:
-        raise ValueError("The training windows contain no positive targets.")
+    if (
+        np.unique(y_train).size < 2
+        or np.unique(y_val).size < 2
+        or np.unique(y_test).size < 2
+    ):
+        raise ValueError(
+            "Test windows must contain both positive and negative targets."
+        )
 
     model = build_model(
         name=model_name, window_size=window_size, feature_number=len(features)
@@ -104,7 +114,7 @@ def train(experiment_dir, config):
     model = compile_model(
         model,
         learning_rate=config["learning_rate"],
-        classification_treshold=config["classification_threshold"],
+        classification_threshold=config["classification_threshold"],
     )
 
     model.summary()
@@ -146,9 +156,36 @@ def train(experiment_dir, config):
         class_weight=class_weight,
     )
 
+    val_probabilities = model.predict(X_val).ravel()
+    threshold_selection = select_threshold(
+        y_val,
+        val_probabilities,
+    )
+
+    selected_threshold = threshold_selection["threshold"]
+
+    print(
+        "Validation threshold selection:",
+        threshold_selection,
+    )
+
     metrics = model.evaluate(X_test, y_test, return_dict=True)
 
     metrics = {name: float(value) for name, value in metrics.items()}
+
+    test_probabilities = model.predict(X_test).ravel()
+
+    threshold_metrics, test_predictions = evaluate_at_threshold(
+        y_test,
+        test_probabilities,
+        selected_threshold,
+    )
+
+    metrics = {
+        "validation_threshold_selection": threshold_selection,
+        "keras_test_metrics": keras_metrics,
+        "threshold_test_metrics": threshold_metrics,
+    }
 
     print("Test Metrics:", metrics)
 
@@ -157,17 +194,36 @@ def train(experiment_dir, config):
     with open(experiment_dir / "scaler.pkl", "wb") as file:
         pickle.dump(scaler, file)
 
-    with open(experiment_dir / "test_metrics.json", "wb") as file:
+    with open(experiment_dir / "test_metrics.json", "w", encoding="utf-8") as file:
         json.dump(metrics, file, indent=2)
 
-    predictions = model.predict(X_test).ravel()
+    experiment_config = {
+        "model_name": model_name,
+        "window_size": window_size,
+        "forecast_horizon": forecast_horizon,
+        "window_stride": window_stride,
+        "test_size": test_size,
+        "val_size": val_size,
+        "random_state": random_state,
+        "features": features,
+        "training": config,
+        "selected_threshold": selected_threshold,
+    }
+
+    with open(
+        experiment_dir / "experiment_config.json",
+        "w",
+        encoding="utf-8",
+    ) as file:
+        json.dump(experiment_config, file, indent=2)
 
     prediction_df = pd.DataFrame(
         {
             "discharge_ID": test_discharge_ids,
             "time": test_end_times,
             "target": y_test,
-            "probability": predictions,
+            "probability": test_probabilities,
+            "prediction": test_predictions,
         }
     )
 
