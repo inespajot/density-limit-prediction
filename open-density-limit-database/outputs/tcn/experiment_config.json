@@ -1,0 +1,26 @@
+{
+  "model_name": "tcn",
+  "window_size": 50,
+  "forecast_horizon": 20,
+  "window_stride": 1,
+  "test_size": 0.2,
+  "val_size": 0.2,
+  "random_state": 42,
+  "features": [
+    "density",
+    "plasma_current",
+    "elongation",
+    "minor_radius",
+    "toroidal_B_field",
+    "triangularity"
+  ],
+  "training": {
+    "epochs": 20,
+    "batch_size": 64,
+    "patience": 20,
+    "learning_rate": 0.001,
+    "classification_threshold": 0.5,
+    "minimum_recall": 0.95
+  },
+  "selected_threshold": 1.7789540118231216e-14
+}

@@ -2,6 +2,7 @@ import json
 import pickle
 from pathlib import Path
 from contextlib import redirect_stdout
+import argparse
 
 import numpy as np
 import pandas as pd
@@ -22,8 +23,6 @@ val_size = 0.20
 random_state = 42
 window_stride = 1
 
-model_name = "cnn"
-
 training_configs = {
     "cnn": {
         "epochs": 20,
@@ -34,7 +33,7 @@ training_configs = {
         "minimum_recall": 0.95,
     },
     "tcn": {
-        "epochs": 200,
+        "epochs": 20,
         "batch_size": 64,
         "patience": 20,
         "learning_rate": 1e-3,
@@ -42,9 +41,9 @@ training_configs = {
         "minimum_recall": 0.95,
     },
     "gru": {
-        "epochs": 200,
+        "epochs": 10,
         "batch_size": 32,
-        "patience": 20,
+        "patience": 5,
         "learning_rate": 1e-3,
         "classification_threshold": 0.5,
         "minimum_recall": 0.95,
@@ -52,7 +51,7 @@ training_configs = {
 }
 
 
-def train(experiment_dir, config):
+def train(experiment_dir, config, model_name):
     keras.utils.set_random_seed(random_state)
 
     df = pd.read_csv(DATA_PATH)
@@ -238,6 +237,20 @@ def train(experiment_dir, config):
 
 
 def main():
+
+    parser = argparse.ArgumentParser(
+        description="Train a density-limit prediction model."
+    )
+
+    parser.add_argument(
+        "--model",
+        choices=["cnn", "tcn", "gru"],
+        required=True,
+        help="Model architecture to train.",
+    )
+
+    args = parser.parse_args()
+    model_name = args.model
     config = training_configs[model_name]
 
     experiment_dir = OUTPUT_DIR / model_name
@@ -245,7 +258,7 @@ def main():
     log_path = experiment_dir / "training_log.txt"
     with open(log_path, "w") as log_file:
         with redirect_stdout(log_file):
-            train(experiment_dir, config)
+            train(experiment_dir, config, model_name)
 
 
 if __name__ == "__main__":
