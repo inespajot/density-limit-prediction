@@ -26,7 +26,7 @@ model_name = "cnn"
 
 training_configs = {
     "cnn": {
-        "epochs": 150,
+        "epochs": 20,
         "batch_size": 64,
         "patience": 15,
         "learning_rate": 1e-3,
@@ -133,13 +133,13 @@ def train(experiment_dir, config):
             monitor="val_loss", mode="min", factor=0.5, patience=5, min_lr=1e-6
         ),
         keras.callbacks.ModelCheckpoint(
-            experiment_dir / "best_model.keras",
+            str(experiment_dir / "best_model.keras"),
             monitor="val_pr_auc",
             mode="max",
             save_best_only=True,
         ),
         keras.callbacks.CSVLogger(
-            experiment_dir / "training_history.csv",
+            str(experiment_dir / "training_history.csv"),
         ),
     ]
 
@@ -173,7 +173,7 @@ def train(experiment_dir, config):
 
     keras_metrics = model.evaluate(X_test, y_test, return_dict=True)
 
-    keras_metrics = {name: float(value) for name, value in metrics.items()}
+    keras_metrics = {name: float(value) for name, value in keras_metrics.items()}
 
     test_probabilities = model.predict(X_test).ravel()
 
@@ -191,7 +191,7 @@ def train(experiment_dir, config):
 
     print("Test Metrics:", metrics)
 
-    model.save(experiment_dir / "final_model.keras")
+    model.save(str(experiment_dir / "final_model.keras"))
 
     with open(experiment_dir / "scaler.pkl", "wb") as file:
         pickle.dump(scaler, file)

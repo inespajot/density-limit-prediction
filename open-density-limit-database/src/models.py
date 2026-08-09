@@ -73,7 +73,7 @@ def build_gru():
 
 def compile_model(model, learning_rate, classification_threshold):
     model.compile(
-        optimizer=keras.optimizers.Adam(learning_rate=learning_rate),
+        optimizer=keras.optimizers.legacy.Adam(learning_rate=learning_rate),
         loss="binary_crossentropy",
         metrics=[
             keras.metrics.AUC(name="roc_auc"),

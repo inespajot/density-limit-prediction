@@ -1,0 +1,36 @@
+{
+  "validation_threshold_selection": {
+    "threshold": 0.0032718114089220762,
+    "minimum_required_recall": 0.95,
+    "precision": 0.08783783783783784,
+    "recall": 0.9558823529411765,
+    "f1": 0.16089108756739537
+  },
+  "keras_test_metrics": {
+    "loss": 0.031040802597999573,
+    "roc_auc": 0.8948736190795898,
+    "pr_auc": 0.5077630877494812,
+    "precision": 0.3032258152961731,
+    "recall": 0.7966101765632629
+  },
+  "threshold_test_metrics": {
+    "threshold": 0.0032718114089220762,
+    "precision": 0.05972045743329098,
+    "recall": 0.7966101694915254,
+    "f1": 0.1111111111111111,
+    "true_negatives": 19435,
+    "false_positives": 740,
+    "false_negatives": 12,
+    "true_positives": 47,
+    "confusion_matrix": [
+      [
+        19435,
+        740
+      ],
+      [
+        12,
+        47
+      ]
+    ]
+  }
+}
