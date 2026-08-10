@@ -19,7 +19,7 @@ OUTPUT_DIR = PROJECT_ROOT / "outputs"
 window_size = 50
 forecast_horizon = 20
 test_size = 0.20
-val_size = 0.20
+val_size = 0.10
 random_state = 42
 window_stride = 1
 

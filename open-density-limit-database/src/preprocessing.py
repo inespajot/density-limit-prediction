@@ -27,9 +27,12 @@ def split_by_discharge(df, test_size, val_size, random_state):
     )
     target_by_id = discharge_targets.set_index("discharge_ID")
     train_val_targets = target_by_id.loc[train_val_ids, "density_limit_phase"]
+
+    relative_val_size = val_size / (1 - test_size)
+
     train_ids, val_ids = train_test_split(
         train_val_ids,
-        test_size=val_size,
+        test_size=relative_val_size,
         random_state=random_state,
         stratify=train_val_targets,
     )
