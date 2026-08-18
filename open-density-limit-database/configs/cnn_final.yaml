@@ -1,0 +1,27 @@
+run_name: cnn_final_seed42
+model: cnn
+random_state: 42
+
+data:
+  window_size: 50
+  forecast_horizon: 20
+  window_stride: 1
+  test_size: 0.20
+  val_size: 0.10
+
+training:
+  epochs: 50
+  batch_size: 64
+  patience: 10
+  learning_rate: 0.001
+  classification_threshold: 0.5
+  minimum_recall: 0.95
+
+model_parameters:
+  filters: [32, 64]
+  kernel_sizes: [5, 3]
+  dense_units: 32
+  dropout: 0.30
+
+evaluation:
+  run_test: true

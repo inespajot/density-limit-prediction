@@ -1,0 +1,29 @@
+run_name: tcn_quick_seed42
+model: tcn
+random_state: 42
+
+data:
+  window_size: 50
+  forecast_horizon: 20
+  window_stride: 10
+  test_size: 0.20
+  val_size: 0.10
+
+training:
+  epochs: 5
+  batch_size: 64
+  patience: 2
+  learning_rate: 0.001
+  classification_threshold: 0.5
+  minimum_recall: 0.95
+
+model_parameters:
+  filters: [32, 32, 64, 64]
+  dilation_rates: [1, 2, 4, 8]
+  kernel_size: 3
+  block_dropout: 0.20
+  dense_units: 32
+  dropout: 0.30
+
+evaluation:
+  run_test: false

@@ -12,3 +12,7 @@ __pycache__/
 # Windows Explorer metadata
 Thumbs.db
 desktop.ini
+
+# Generated experiment artifacts (configs remain tracked separately)
+open-density-limit-database/outputs/experiments/
+open-density-limit-database/outputs/experiment_summary.csv

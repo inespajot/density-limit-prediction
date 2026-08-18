@@ -42,7 +42,7 @@ Citation: Maris, A. D., Rea, C., Trevisan, G. L., & the Alcator C-Mod Team. The 
 - **Stratified Splitting**: This allows rare positive discharges to be included in every subset. 
 - **70/10/20 train-validation-test split**
 - **Class weighting**: Positive windows receive a larger training weight because density-limit events are rare. The weight is calculated from the negative-to-positive ratio in the training set.
-- **Recall-first threshold selection**: Among thresholds achieving at least 95% validation recall, the code chooses the one with the highest precision. This is selected on validationd data.
+- **Recall-first threshold selection**: Among thresholds achieving at least 95% validation recall, the code chooses the one with the highest precision. This is selected on validation data.
 - **PR AUC for early-stopping**
 
 ## Repository layout
@@ -52,7 +52,14 @@ density-limit-prediction/
 ├── README.md                         
 └── open-density-limit-database/
     ├── DL_DataFrame.csv              # Density-limit dataset
+    ├── configs/                      # Reproducible YAML experiment settings
+    │   ├── cnn_quick.yaml
+    │   ├── gru_quick.yaml
+    │   ├── tcn_quick.yaml
+    │   └── cnn_final.yaml
+    ├── requirements.txt              # Python dependencies
     ├── src/
+    │   ├── compare.py                # Experiment comparison table
     │   ├── demo_lvsm.py              # Linear SVM baseline
     │   ├── evaluate.py               # Threshold selection and evaluation
     │   ├── models.py                 # CNN, TCN, and GRU definitions
@@ -60,7 +67,8 @@ density-limit-prediction/
     │   ├── train.py                  # Training pipeline
     │   └── visualise.py              # Discharge visualization
     └── outputs/                      # Saved models, predictions, plots, and metrics
-        ├── cnn/                      # CNN results and saved models
+        ├── experiments/              # One unique directory per YAML run
+        ├── cnn/                      # Earlier CNN results and saved models
         ├── gru/                      # GRU results and saved models
         ├── tcn/                      # TCN results and saved models
         ├── lvsm/                     # Linear SVM plots and results
@@ -71,12 +79,32 @@ density-limit-prediction/
 ## Running the models
 Required downloads: Python, NumPy, pandas, scikit-learn, Matplotlib, TensorFlow/Keras.
 
-From `open-density-limit-database/`, run:
+From `open-density-limit-database/`, install the dependencies:
 
 ```bash
-python -m src.train --model cnn
-python -m src.train --model tcn
-python -m src.train --model gru
+python -m pip install -r requirements.txt
 ```
 
-Each run saves its model, fitted scaler, training history, configuration, evaluation metrics, and test predictions under `outputs/<model>/`.
+Then run a quick screening experiment from a YAML configuration:
+
+```bash
+python -m src.train --config configs/cnn_quick.yaml
+```
+
+Each run saves its model, fitted scaler, training history, configuration, and
+evaluation metrics under `outputs/experiments/<run_name>/`. A repeated
+`run_name` is rejected so previous results cannot be overwritten.
+
+Quick configurations use validation metrics and leave the test set untouched.
+After choosing a final configuration, set `evaluation.run_test: true`, give the
+run a new name, and run it at full resolution. The included `cnn_final.yaml`
+shows this format.
+
+Compare all completed experiments with:
+
+```bash
+python -m src.compare
+```
+
+This prints a table ranked by validation PR AUC and writes the complete table to
+`outputs/experiment_summary.csv`.
