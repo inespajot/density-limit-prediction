@@ -1,5 +1,1 @@
-# Density-Limit-Prediction
-
-## Repository Layout 
-|density-limit-prediction/
-|-- 
+# Density Limit Prediction
